@@ -1,8 +1,6 @@
 package org.javaacademy.metro.metro;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Station {
     private final String name;
@@ -10,10 +8,10 @@ public class Station {
     private final Line line;
     private Station previous;
     private Station next;
-    private List<Station> changeLines = new ArrayList<>(1);
+    private Line changeLines;
     private Duration timeTransferToNextStation;
 
-    public Station(String name, List<Station> changeLines, Line line) {
+    public Station(String name, Line changeLines, Line line) {
         this.name = name;
         this.changeLines = changeLines;
         this.line = line;
@@ -80,7 +78,7 @@ public class Station {
     public String toString() {
         return "Station{" +
                 "name='" + name + '\'' +
-                ", changeLines=" + changeLines +
+                ", changeLines=" + (changeLines == null ? "null" : changeLines.getColor().getName()) +
                 '}';
     }
 }

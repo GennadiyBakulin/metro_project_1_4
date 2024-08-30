@@ -15,12 +15,12 @@ public class Line {
         this.metro = metro;
     }
 
-    public void addStation(String nameStation, List<Station> changeLines) {
+    public void addStation(String nameStation, Line changeLines) {
         stations.add(new Station(nameStation, changeLines, this));
         size++;
     }
 
-    public void addStation(String nameStation, List<Station> changeLines, Duration time) {
+    public void addStation(String nameStation, Line changeLines, Duration time) {
         Station newStation = new Station(nameStation, changeLines, this);
         Station endStation = getEndStation();
         endStation.setNext(newStation);

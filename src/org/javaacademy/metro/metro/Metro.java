@@ -3,7 +3,6 @@ package org.javaacademy.metro.metro;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class Metro {
@@ -15,13 +14,16 @@ public class Metro {
         this.city = city;
     }
 
-    public void createLine(LineColor lineColor) {
+    public Line createLine(LineColor lineColor) {
+        Line line = null;
         if (!hasLineWithThisColor(lineColor)) {
-            lines.add(new Line(lineColor, this));
+            line = new Line(lineColor, this);
+            lines.add(line);
         }
+        return line;
     }
 
-    public void createFirstStation(LineColor lineColor, String nameStation, List<Station> changeLines) {
+    public void createFirstStation(LineColor lineColor, String nameStation, Line changeLines) {
         Line line;
         if (hasLineWithThisColor(lineColor) && nameStationIsUnique(nameStation)) {
             line = getLineWithThisColor(lineColor);
@@ -33,7 +35,7 @@ public class Metro {
 
     public void createEndStation(LineColor lineColor, String nameStation,
                                  Duration timeTransferFromPreviousStation,
-                                 List<Station> changeLines) {
+                                 Line changeLines) {
         Line line;
         if (hasLineWithThisColor(lineColor) && nameStationIsUnique(nameStation)
                 && timeTransferFromPreviousStation.getSeconds() > 0) {
@@ -66,7 +68,7 @@ public class Metro {
     public String toString() {
         return "Metro{" +
                 "city='" + city + '\'' +
-                ", lines=" + lines.toString() +
+                ", lines=" + lines +
                 '}';
     }
 }
