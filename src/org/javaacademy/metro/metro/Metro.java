@@ -3,9 +3,11 @@ package org.javaacademy.metro.metro;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Metro {
+
     private final String city;
     private final Set<Line> lines = new HashSet<>(2);
 
@@ -13,33 +15,40 @@ public class Metro {
         this.city = city;
     }
 
-    public void createNewLine(LineColor lineColor) {
-        if (isNotLineWithThisColor(lineColor)) {
+    public void createLine(LineColor lineColor) {
+        if (!hasLineWithThisColor(lineColor)) {
             lines.add(new Line(lineColor, this));
         }
     }
 
-    public void createFirstStation(LineColor lineColor, String nameStation, Station[] changeLines) {
+    public void createFirstStation(LineColor lineColor, String nameStation, List<Station> changeLines) {
         Line line;
-        if (!isNotLineWithThisColor(lineColor) && isUniqueNameOfStation(nameStation)) {
-            line = lines.stream().filter(x -> x.getColor().equals(lineColor)).findFirst().get();
+        if (hasLineWithThisColor(lineColor) && nameStationIsUnique(nameStation)) {
+            line = getLineWithThisColor(lineColor);
             if (line.isEmpty()) {
-                line.getStations().add(new Station(nameStation, changeLines, this, line));
+                line.addStation(nameStation, changeLines);
             }
         }
     }
 
     public void createEndStation(LineColor lineColor, String nameStation,
                                  Duration timeTransferFromPreviousStation,
-                                 Station[] changeLines) {
-
+                                 List<Station> changeLines) {
+        Line line;
+        if (hasLineWithThisColor(lineColor) && nameStationIsUnique(nameStation)
+                && timeTransferFromPreviousStation.getSeconds() > 0) {
+            line = getLineWithThisColor(lineColor);
+            if (!line.isEmpty() && line.getEndStation().getNext() == null) {
+                line.addStation(nameStation, changeLines, timeTransferFromPreviousStation);
+            }
+        }
     }
 
-    private boolean isNotLineWithThisColor(LineColor lineColor) {
-        return lines.stream().noneMatch(line -> line.getColor().equals(lineColor));
+    private boolean hasLineWithThisColor(LineColor lineColor) {
+        return lines.stream().anyMatch(line -> line.getColor().equals(lineColor));
     }
 
-    private boolean isUniqueNameOfStation(String nameStation) {
+    private boolean nameStationIsUnique(String nameStation) {
         if (lines.isEmpty()) {
             return false;
         }
@@ -47,6 +56,10 @@ public class Metro {
                 .map(Line::getStations)
                 .flatMap(Collection::stream)
                 .noneMatch(a -> a.getName().equals(nameStation));
+    }
+
+    private Line getLineWithThisColor(LineColor lineColor) {
+        return lines.stream().filter(x -> x.getColor().equals(lineColor)).findFirst().get();
     }
 
     @Override
