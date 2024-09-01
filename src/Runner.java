@@ -33,13 +33,13 @@ public class Runner {
 
 //        System.out.println(metro.findTransferStations(blueLine, redLine));
 
-        Station station1 = redLine.getStationByName("Пермь 2");
-        Station station2 = redLine.getStationByName("Медведковская");
+        Station station1 = redLine.getStationByName("Дворец Культуры");
+        Station station2 = blueLine.getStationByName("Пацанская");
 
 //        System.out.println(station1.getPrevious());
 //        System.out.println(station1.getNext());
 
-        System.out.println(metro.numberOfRunsBetweenTwoStationsOneLine(blueLine, station1, station2));
+        System.out.println(metro.numberOfRunsBetweenTwoStations(station1, station2));
 
 //        System.out.println(metro.numberOfRunsBetweenTwoStationsOneLineDirectSearch(redLine, station1, station2));
 //        System.out.println(metro.numberOfRunsBetweenTwoStationsOneLineReverseSearch(redLine, station1, station2));
