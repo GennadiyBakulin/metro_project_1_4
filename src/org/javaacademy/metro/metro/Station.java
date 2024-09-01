@@ -26,7 +26,8 @@ public class Station {
         this.metro = line.getMetro();
     }
 
-    public void ticketSales(LocalDate date, Station start, Station end) throws StationWasNotFoundException, NoWayOutOfStationException {
+    public void ticketSales(LocalDate date, String start, String end)
+            throws StationWasNotFoundException, NoWayOutOfStationException {
         int count = metro.numberOfRunsBetweenTwoStations(start, end);
         int ticketPrice = count * TICKET_PRICE + SINGLE_PAYMENT;
         ticketOffice.addRecordOfTicketSale(date, ticketPrice);

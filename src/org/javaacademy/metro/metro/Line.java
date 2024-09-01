@@ -53,18 +53,6 @@ public class Line {
         return stations.peekLast();
     }
 
-    public Station getStationByName(String nameStation) {
-        return stations.stream().filter(x -> x.getName().equals(nameStation)).findFirst().orElse(null);
-    }
-
-    public int getIndexStationByName(String nameStation) {
-        Station station = getStationByName(nameStation);
-        if (station == null) {
-            return -1;
-        }
-        return stations.indexOf(station);
-    }
-
     public Metro getMetro() {
         return metro;
     }

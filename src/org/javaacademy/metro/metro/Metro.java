@@ -58,10 +58,7 @@ public class Metro {
         if (lines.isEmpty()) {
             return false;
         }
-        return lines.stream()
-                .map(Line::getStations)
-                .flatMap(Collection::stream)
-                .noneMatch(a -> a.getName().equals(nameStation));
+        return getStationByName(nameStation) == null;
     }
 
     private Line getLineWithThisColor(LineColor lineColor) {
@@ -128,35 +125,38 @@ public class Metro {
                 String.format("Нет пути из станции %s в %s", start.getName(), end.getName()));
     }
 
-    public int numberOfRunsBetweenTwoStations(Station start, Station end)
+    public int numberOfRunsBetweenTwoStations(String start, String end)
             throws NoWayOutOfStationException, StationWasNotFoundException {
-        if (hasStationOfMetro(start) || hasStationOfMetro(end)) {
-            throw new StationWasNotFoundException("Одна из станций или обе не найдены на линиях метро Пермь!");
-        }
 
         if (start.equals(end)) {
             return 0;
         }
+        Station startStation = getStationByName(start);
+        Station endStation = getStationByName(end);
 
-        Line startLine = start.getLine();
-        Line endLine = end.getLine();
-
-        if (startLine.equals(endLine)) {
-            return numberOfRunsBetweenTwoStationsOneLine(start, end);
+        if (startStation == null || endStation == null) {
+            throw new StationWasNotFoundException("Одна из станций или обе станции не найдены на линиях метро Пермь!");
         }
 
-        Station startTransferStation = findTransferStations(startLine, endLine);
-        int count = numberOfRunsBetweenTwoStationsOneLine(start, startTransferStation);
-        Station endTransferStation = findTransferStations(endLine, startLine);
-        count += numberOfRunsBetweenTwoStationsOneLine(end, endTransferStation);
+        if (startStation.getLine().equals(endStation.getLine())) {
+            return numberOfRunsBetweenTwoStationsOneLine(startStation, endStation);
+        }
+
+        Station startTransferStation = findTransferStations(startStation.getLine(), endStation.getLine());
+        int count = numberOfRunsBetweenTwoStationsOneLine(startStation, startTransferStation);
+        Station endTransferStation = findTransferStations(endStation.getLine(), startStation.getLine());
+        count += numberOfRunsBetweenTwoStationsOneLine(endStation, endTransferStation);
 
         return count;
     }
 
-    public boolean hasStationOfMetro(Station station) {
-        return lines.stream().map(Line::getStations)
+    public Station getStationByName(String name) {
+        return lines.stream()
+                .map(Line::getStations)
                 .flatMap(Collection::stream)
-                .noneMatch(x -> x.equals(station));
+                .filter(x -> x.getName().equals(name))
+                .findFirst()
+                .orElse(null);
     }
 
 

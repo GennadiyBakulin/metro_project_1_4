@@ -11,10 +11,7 @@ public class TicketOffice {
     }
 
     public void addRecordOfTicketSale(LocalDate date, int price) {
-        if (recordIncome.containsKey(date)) {
-            price += recordIncome.get(date);
-        }
-        recordIncome.put(date, price);
+        recordIncome.merge(date, price, Integer::sum);
     }
 
     @Override

@@ -11,7 +11,8 @@ import java.time.Duration;
 import java.time.LocalDate;
 
 public class Runner {
-    public static void main(String[] args) throws StationNotAddedException, LineNotCreatedException, StationWasNotFoundException, NoWayOutOfStationException {
+    public static void main(String[] args) throws StationNotAddedException,
+            LineNotCreatedException, StationWasNotFoundException, NoWayOutOfStationException {
         Metro metro = new Metro("Пермь");
 
         Line redLine = metro.createLine(LineColor.RED);
@@ -34,12 +35,11 @@ public class Runner {
 
 //        System.out.println(metro.findTransferStations(blueLine, redLine));
 
-        Station station1 = redLine.getStationByName("Дворец Культуры");
-        Station station2 = blueLine.getStationByName("Пацанская");
-        Station station3 = blueLine.getStationByName("Нижнекамская");
+        Station station2 = metro.getStationByName("Пацанская");
 
-        station2.ticketSales(LocalDate.now(), station2, station1);
-        station2.ticketSales(LocalDate.now(), station2, station3);
+        station2.ticketSales(LocalDate.now(), "Пацанская", "Дворец Культуры");
+        station2.ticketSales(LocalDate.now(), "Пацанская", "Нижнекамская");
+        station2.ticketSales(LocalDate.of(2019, 3, 10), "Пацанская", "Нижнекамская");
         System.out.println(station2.getTicketOffice().getRecordIncome());
 
 //        System.out.println(station1.getPrevious());
