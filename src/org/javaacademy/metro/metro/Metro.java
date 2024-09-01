@@ -1,5 +1,8 @@
 package org.javaacademy.metro.metro;
 
+import org.javaacademy.metro.exception.LineNotCreatedException;
+import org.javaacademy.metro.exception.StationNotAddedException;
+
 import java.time.Duration;
 import java.util.Collection;
 import java.util.HashSet;
@@ -14,40 +17,37 @@ public class Metro {
         this.city = city;
     }
 
-    public Line createLine(LineColor lineColor) {
-        Line line = null;
-        if (!hasLineWithThisColor(lineColor)) {
+    public Line createLine(LineColor lineColor) throws LineNotCreatedException {
+        Line line = getLineWithThisColor(lineColor);
+        if (line == null) {
             line = new Line(lineColor, this);
             lines.add(line);
+        } else {
+            throw new LineNotCreatedException("Не удалось создать новую линию");
         }
         return line;
     }
 
-    public void createFirstStation(LineColor lineColor, String nameStation, Line changeLines) {
-        Line line;
-        if (hasLineWithThisColor(lineColor) && nameStationIsUnique(nameStation)) {
-            line = getLineWithThisColor(lineColor);
-            if (line.isEmpty()) {
-                line.addStation(nameStation, changeLines);
-            }
+    public void createFirstStation(LineColor lineColor, String nameStation, Line changeLines) throws StationNotAddedException {
+        Line line = getLineWithThisColor(lineColor);
+        if (line != null && line.isEmpty() && nameStationIsUnique(nameStation)) {
+            line.addStation(nameStation, changeLines);
+        } else {
+            throw new StationNotAddedException("Не удалось добавить первую станцию в линию метро");
         }
     }
 
     public void createEndStation(LineColor lineColor, String nameStation,
                                  Duration timeTransferFromPreviousStation,
-                                 Line changeLines) {
-        Line line;
-        if (hasLineWithThisColor(lineColor) && nameStationIsUnique(nameStation)
-                && timeTransferFromPreviousStation.getSeconds() > 0) {
-            line = getLineWithThisColor(lineColor);
-            if (!line.isEmpty() && line.getEndStation().getNext() == null) {
-                line.addStation(nameStation, changeLines, timeTransferFromPreviousStation);
-            }
+                                 Line changeLines) throws StationNotAddedException {
+        Line line = getLineWithThisColor(lineColor);
+        if (line != null && !line.isEmpty() && nameStationIsUnique(nameStation)
+                && timeTransferFromPreviousStation.getSeconds() > 0
+                && line.getLastStation().getNext() == null) {
+            line.addStation(nameStation, changeLines, timeTransferFromPreviousStation);
+        } else {
+            throw new StationNotAddedException("Не удалось добавить конечную станцию в линию метро");
         }
-    }
-
-    private boolean hasLineWithThisColor(LineColor lineColor) {
-        return lines.stream().anyMatch(line -> line.getColor().equals(lineColor));
     }
 
     private boolean nameStationIsUnique(String nameStation) {
@@ -61,7 +61,7 @@ public class Metro {
     }
 
     private Line getLineWithThisColor(LineColor lineColor) {
-        return lines.stream().filter(x -> x.getColor().equals(lineColor)).findFirst().get();
+        return lines.stream().filter(x -> x.getColor().equals(lineColor)).findFirst().orElse(null);
     }
 
     @Override

@@ -8,7 +8,7 @@ public class Station {
     private final Line line;
     private Station previous;
     private Station next;
-    private Line changeLines;
+    private final Line changeLines;
     private Duration timeTransferToNextStation;
 
     public Station(String name, Line changeLines, Line line) {

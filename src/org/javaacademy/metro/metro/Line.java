@@ -1,49 +1,68 @@
 package org.javaacademy.metro.metro;
 
+import org.javaacademy.metro.exception.StationNotAddedException;
+
 import java.time.Duration;
 import java.util.LinkedList;
-import java.util.List;
 
 public class Line {
     private final LineColor color;
     private final Metro metro;
-    private final List<Station> stations = new LinkedList<>();
-    private int size = 0;
+    private final LinkedList<Station> stations = new LinkedList<>();
 
     public Line(LineColor color, Metro metro) {
         this.color = color;
         this.metro = metro;
     }
 
-    public void addStation(String nameStation, Line changeLines) {
-        stations.add(new Station(nameStation, changeLines, this));
-        size++;
+    public void addStation(String nameStation, Line changeLines) throws StationNotAddedException {
+        if (!stations.offerFirst(new Station(nameStation, changeLines, this))) {
+            throw new StationNotAddedException("Не удалось добавить первую станцию в линию метро");
+        }
     }
 
-    public void addStation(String nameStation, Line changeLines, Duration time) {
+    public void addStation(String nameStation, Line changeLines, Duration time) throws StationNotAddedException {
         Station newStation = new Station(nameStation, changeLines, this);
-        Station endStation = getEndStation();
-        endStation.setNext(newStation);
-        endStation.setTimeTransferToNextStation(time);
-        newStation.setPrevious(endStation);
-        stations.add(newStation);
-        size++;
+        Station lastStation = getLastStation();
+
+        if (!stations.offerLast(newStation)) {
+            throw new StationNotAddedException("Не удалось добавить конечную станцию в линию метро");
+        }
+        lastStation.setNext(newStation);
+        lastStation.setTimeTransferToNextStation(time);
+        newStation.setPrevious(lastStation);
     }
 
     public boolean isEmpty() {
-        return size == 0;
+        return stations.isEmpty();
     }
 
     public LineColor getColor() {
         return color;
     }
 
-    public List<Station> getStations() {
+    public LinkedList<Station> getStations() {
         return stations;
     }
 
-    public Station getEndStation() {
-        return stations.get(size - 1);
+    public Station getFirstStations() {
+        return stations.peekFirst();
+    }
+
+    public Station getLastStation() {
+        return stations.peekLast();
+    }
+
+    public Station getStationByName(String nameStation) {
+        return stations.stream().filter(x -> x.getName().equals(nameStation)).findFirst().orElse(null);
+    }
+
+    public int getIndexStationByName(String nameStation) {
+        Station station = getStationByName(nameStation);
+        if (station == null) {
+            return -1;
+        }
+        return stations.indexOf(station);
     }
 
     public Metro getMetro() {

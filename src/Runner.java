@@ -1,3 +1,5 @@
+import org.javaacademy.metro.exception.LineNotCreatedException;
+import org.javaacademy.metro.exception.StationNotAddedException;
 import org.javaacademy.metro.metro.Line;
 import org.javaacademy.metro.metro.LineColor;
 import org.javaacademy.metro.metro.Metro;
@@ -6,7 +8,7 @@ import org.javaacademy.metro.metro.Station;
 import java.time.Duration;
 
 public class Runner {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws StationNotAddedException, LineNotCreatedException {
         Metro metro = new Metro("Пермь");
 
         Line redLine = metro.createLine(LineColor.RED);
@@ -27,6 +29,6 @@ public class Runner {
 
         System.out.println(metro);
 
-//        System.out.println(redLine.getStations().indexOf(new Station("Пермь 1", null, blueLine)));
+        System.out.println(redLine.getStations().indexOf(new Station("Пермь 1", null, blueLine)));
     }
 }
