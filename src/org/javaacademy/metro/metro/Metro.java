@@ -6,15 +6,15 @@ import org.javaacademy.metro.exception.StationNotAddedException;
 import org.javaacademy.metro.exception.StationWasNotFoundException;
 
 import java.time.Duration;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Metro {
 
     private final String city;
     private final Set<Line> lines = new HashSet<>(2);
+    private final SortedMap<String, LocalDate> travelTickets = new TreeMap<>();
 
     public Metro(String city) {
         this.city = city;
@@ -77,44 +77,24 @@ public class Metro {
         }
     }
 
-    public int numberOfRunsBetweenTwoStationsOneLineDirectSearch(Station start, Station end) {
-//        AtomicInteger count = new AtomicInteger();
-//        line.getStations().stream()
-//                .takeWhile(station -> !station.equals(end))
-//                .dropWhile(station -> !station.equals(start))
-//                .forEach(x -> count.getAndIncrement());
-//        return count.get() != 0 ? count.get() : -1;
-        int count = 0;
-        while (!start.equals(end)) {
-            if (start.getNext() == null) {
-                return -1;
-            }
-            start = start.getNext();
-            count++;
-        }
-        return count;
+    public long numberOfRunsBetweenTwoStationsOneLineDirectSearch(Station start, Station end) {
+        long count = start.getLine().getStations().stream()
+                .takeWhile(station -> !station.equals(end))
+                .dropWhile(station -> !station.equals(start))
+                .count();
+        return count != 0 ? count : -1;
     }
 
-    public int numberOfRunsBetweenTwoStationsOneLineReverseSearch(Station start, Station end) {
-//        AtomicInteger count = new AtomicInteger();
-//        line.getStations().stream()
-//                .takeWhile(station -> !station.equals(start))
-//                .dropWhile(station -> !station.equals(end))
-//                .forEach(x -> count.getAndIncrement());
-//        return count.get() != 0 ? count.get() : -1;
-        int count = 0;
-        while (!start.equals(end)) {
-            if (start.getPrevious() == null) {
-                return -1;
-            }
-            start = start.getPrevious();
-            count++;
-        }
-        return count;
+    public long numberOfRunsBetweenTwoStationsOneLineReverseSearch(Station start, Station end) {
+        long count = start.getLine().getStations().stream()
+                .takeWhile(station -> !station.equals(start))
+                .dropWhile(station -> !station.equals(end))
+                .count();
+        return count != 0 ? count : -1;
     }
 
-    public int numberOfRunsBetweenTwoStationsOneLine(Station start, Station end) throws NoWayOutOfStationException {
-        int count;
+    public long numberOfRunsBetweenTwoStationsOneLine(Station start, Station end) throws NoWayOutOfStationException {
+        long count;
         if ((count = numberOfRunsBetweenTwoStationsOneLineDirectSearch(start, end)) != -1) {
             return count;
         }
@@ -125,7 +105,7 @@ public class Metro {
                 String.format("Нет пути из станции %s в %s", start.getName(), end.getName()));
     }
 
-    public int numberOfRunsBetweenTwoStations(String start, String end)
+    public long numberOfRunsBetweenTwoStations(String start, String end)
             throws NoWayOutOfStationException, StationWasNotFoundException {
 
         if (start.equals(end)) {
@@ -143,11 +123,15 @@ public class Metro {
         }
 
         Station startTransferStation = findTransferStations(startStation.getLine(), endStation.getLine());
-        int count = numberOfRunsBetweenTwoStationsOneLine(startStation, startTransferStation);
+        long count = numberOfRunsBetweenTwoStationsOneLine(startStation, startTransferStation);
         Station endTransferStation = findTransferStations(endStation.getLine(), startStation.getLine());
         count += numberOfRunsBetweenTwoStationsOneLine(endStation, endTransferStation);
 
         return count;
+    }
+
+    public SortedMap<String, LocalDate> getTravelTickets() {
+        return travelTickets;
     }
 
     public Station getStationByName(String name) {
@@ -159,6 +143,24 @@ public class Metro {
                 .orElse(null);
     }
 
+    public void addTravelTicket(String number, LocalDate date) {
+        travelTickets.put(number, date);
+    }
+
+    public boolean validityCheckTravelTicket(String number, LocalDate date) {
+        return date.isEqual(travelTickets.get(number)) || date.isBefore(travelTickets.get(number));
+    }
+
+    public void printIncomeAllTicketsOffice() {
+        Map<LocalDate, Long> newMap = lines.stream()
+                .map(Line::getStations)
+                .flatMap(Collection::stream)
+                .map(station -> station.getTicketOffice().getRecordIncome().entrySet())
+                .flatMap(Collection::stream)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Long::sum));
+        SortedMap<LocalDate, Long> sortedMap = new TreeMap<>(newMap);
+        sortedMap.forEach((key, value) -> System.out.println(key + " - " + value));
+    }
 
     @Override
     public String toString() {
