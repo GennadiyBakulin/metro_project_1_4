@@ -54,6 +54,10 @@ public class Station {
         return line;
     }
 
+    public Line getChangeLines() {
+        return changeLines;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

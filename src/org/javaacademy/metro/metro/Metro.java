@@ -1,11 +1,14 @@
 package org.javaacademy.metro.metro;
 
 import org.javaacademy.metro.exception.LineNotCreatedException;
+import org.javaacademy.metro.exception.NoWayOutOfStationException;
 import org.javaacademy.metro.exception.StationNotAddedException;
+import org.javaacademy.metro.exception.StationWasNotFoundException;
 
 import java.time.Duration;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 public class Metro {
@@ -63,6 +66,75 @@ public class Metro {
     private Line getLineWithThisColor(LineColor lineColor) {
         return lines.stream().filter(x -> x.getColor().equals(lineColor)).findFirst().orElse(null);
     }
+
+    public Station findTransferStations(Line start, Line end) throws StationWasNotFoundException {
+        try {
+            return getLineWithThisColor(start.getColor()).getStations()
+                    .stream()
+                    .filter(station -> station.getChangeLines() != null && station.getChangeLines().equals(end))
+                    .findFirst()
+                    .orElseThrow();
+        } catch (NoSuchElementException e) {
+            throw new StationWasNotFoundException("Станция на пересадку не найдена!");
+        }
+    }
+
+    public int numberOfRunsBetweenTwoStations(Station start, Station end) throws NoWayOutOfStationException {
+
+
+        return 0;
+    }
+
+    public int numberOfRunsBetweenTwoStationsOneLine(Line line, Station start, Station end) throws NoWayOutOfStationException {
+        int count;
+        if ((count = numberOfRunsBetweenTwoStationsOneLineDirectSearch(line, start, end)) != -1) {
+            return count;
+        }
+        if ((count = numberOfRunsBetweenTwoStationsOneLineReverseSearch(line, start, end)) != -1) {
+            return count;
+        }
+        throw new NoWayOutOfStationException(
+                String.format("Нет пути из станции %s в %s", start.getName(), end.getName()));
+    }
+
+    public int numberOfRunsBetweenTwoStationsOneLineDirectSearch(Line line, Station start, Station end) {
+//        AtomicInteger count = new AtomicInteger();
+//        line.getStations().stream()
+//                .takeWhile(station -> !station.equals(end))
+//                .dropWhile(station -> !station.equals(start))
+//                .forEach(x -> count.getAndIncrement());
+//
+//        return count.get() != 0 ? count.get() : -1;
+        int count = 0;
+        while (!start.equals(end)) {
+            if (start.getNext() == null) {
+                return -1;
+            }
+            start = start.getNext();
+            count++;
+        }
+        return count;
+    }
+
+    public int numberOfRunsBetweenTwoStationsOneLineReverseSearch(Line line, Station start, Station end) {
+//        AtomicInteger count = new AtomicInteger();
+//        line.getStations().stream()
+//                .takeWhile(station -> !station.equals(start))
+//                .dropWhile(station -> !station.equals(end))
+//                .forEach(x -> count.getAndIncrement());
+//
+//        return count.get() != 0 ? count.get() : -1;
+        int count = 0;
+        while (!start.equals(end)) {
+            if (start.getPrevious() == null) {
+                return -1;
+            }
+            start = start.getPrevious();
+            count++;
+        }
+        return count;
+    }
+
 
     @Override
     public String toString() {
