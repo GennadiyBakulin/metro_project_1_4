@@ -31,24 +31,24 @@ public class Metro {
         return line;
     }
 
-    public void createFirstStation(LineColor lineColor, String nameStation, Line changeLines)
+    public void createFirstStation(LineColor lineColor, String name, Line changeLines)
             throws StationNotAddedException {
         Line line = getLineWithThisColor(lineColor);
-        if (line != null && line.isEmpty() && nameStationIsUnique(nameStation)) {
-            line.addStation(nameStation, changeLines);
+        if (line != null && line.isEmpty() && nameStationIsUnique(name)) {
+            line.addStation(name, changeLines);
         } else {
             throw new StationNotAddedException("Не удалось добавить первую станцию в линию метро");
         }
     }
 
-    public void createEndStation(LineColor lineColor, String nameStation,
+    public void createEndStation(LineColor lineColor, String name,
                                  Duration timeTransferFromPreviousStation,
                                  Line changeLines) throws StationNotAddedException {
         Line line = getLineWithThisColor(lineColor);
-        if (line != null && !line.isEmpty() && nameStationIsUnique(nameStation)
+        if (line != null && !line.isEmpty() && nameStationIsUnique(name)
                 && timeTransferFromPreviousStation.getSeconds() > 0
-                && line.getLastStation().getNext() == null) {
-            line.addStation(nameStation, changeLines, timeTransferFromPreviousStation);
+                && line.getStations().peekLast().getNext() == null) {
+            line.addStation(name, changeLines, timeTransferFromPreviousStation);
         } else {
             throw new StationNotAddedException("Не удалось добавить конечную станцию в линию метро");
         }

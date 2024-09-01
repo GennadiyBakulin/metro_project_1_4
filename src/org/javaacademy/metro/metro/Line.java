@@ -23,7 +23,7 @@ public class Line {
 
     public void addStation(String nameStation, Line changeLines, Duration time) throws StationNotAddedException {
         Station newStation = new Station(nameStation, changeLines, this);
-        Station lastStation = getLastStation();
+        Station lastStation = stations.peekLast();
 
         if (!stations.offerLast(newStation)) {
             throw new StationNotAddedException("Не удалось добавить конечную станцию в линию метро");
