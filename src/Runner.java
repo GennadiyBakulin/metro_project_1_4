@@ -33,8 +33,6 @@ public class Runner {
 
         System.out.println(metro);
 
-//        System.out.println(metro.findTransferStations(blueLine, redLine));
-
         Station station2 = metro.getStationByName("Пацанская");
 
         station2.ticketSales(LocalDate.now(), "Пацанская", "Дворец Культуры");
@@ -42,15 +40,5 @@ public class Runner {
         station2.ticketSales(LocalDate.of(2019, 3, 10), "Пацанская", "Нижнекамская");
         System.out.println(station2.getTicketOffice().getRecordIncome());
 
-//        System.out.println(station1.getPrevious());
-//        System.out.println(station1.getNext());
-
-//        System.out.println(metro.numberOfRunsBetweenTwoStations(station1, station2));
-
-//        System.out.println(metro.numberOfRunsBetweenTwoStationsOneLineDirectSearch(redLine, station1, station2));
-//        System.out.println(metro.numberOfRunsBetweenTwoStationsOneLineReverseSearch(redLine, station1, station2));
-//        System.out.println(metro);
-
-//        System.out.println(redLine.getStations().indexOf(new Station("Пермь 1", null, blueLine)));
     }
 }
