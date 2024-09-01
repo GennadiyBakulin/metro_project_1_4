@@ -1,8 +1,15 @@
 package org.javaacademy.metro.metro;
 
+import org.javaacademy.metro.TicketOffice;
+import org.javaacademy.metro.exception.NoWayOutOfStationException;
+import org.javaacademy.metro.exception.StationWasNotFoundException;
+
 import java.time.Duration;
+import java.time.LocalDate;
 
 public class Station {
+    private static final int SINGLE_PAYMENT = 20;
+    private static final int TICKET_PRICE = 5;
     private final String name;
     private final Metro metro;
     private final Line line;
@@ -10,12 +17,19 @@ public class Station {
     private Station next;
     private final Line changeLines;
     private Duration timeTransferToNextStation;
+    private final TicketOffice ticketOffice = new TicketOffice();
 
     public Station(String name, Line changeLines, Line line) {
         this.name = name;
         this.changeLines = changeLines;
         this.line = line;
         this.metro = line.getMetro();
+    }
+
+    public void ticketSales(LocalDate date, Station start, Station end) throws StationWasNotFoundException, NoWayOutOfStationException {
+        int count = metro.numberOfRunsBetweenTwoStations(start, end);
+        int ticketPrice = count * TICKET_PRICE + SINGLE_PAYMENT;
+        ticketOffice.addRecordOfTicketSale(date, ticketPrice);
     }
 
     public String getName() {
@@ -56,6 +70,10 @@ public class Station {
 
     public Line getChangeLines() {
         return changeLines;
+    }
+
+    public TicketOffice getTicketOffice() {
+        return ticketOffice;
     }
 
     @Override

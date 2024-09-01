@@ -8,6 +8,7 @@ import org.javaacademy.metro.metro.Metro;
 import org.javaacademy.metro.metro.Station;
 
 import java.time.Duration;
+import java.time.LocalDate;
 
 public class Runner {
     public static void main(String[] args) throws StationNotAddedException, LineNotCreatedException, StationWasNotFoundException, NoWayOutOfStationException {
@@ -35,11 +36,16 @@ public class Runner {
 
         Station station1 = redLine.getStationByName("Дворец Культуры");
         Station station2 = blueLine.getStationByName("Пацанская");
+        Station station3 = blueLine.getStationByName("Нижнекамская");
+
+        station2.ticketSales(LocalDate.now(), station2, station1);
+        station2.ticketSales(LocalDate.now(), station2, station3);
+        System.out.println(station2.getTicketOffice().getRecordIncome());
 
 //        System.out.println(station1.getPrevious());
 //        System.out.println(station1.getNext());
 
-        System.out.println(metro.numberOfRunsBetweenTwoStations(station1, station2));
+//        System.out.println(metro.numberOfRunsBetweenTwoStations(station1, station2));
 
 //        System.out.println(metro.numberOfRunsBetweenTwoStationsOneLineDirectSearch(redLine, station1, station2));
 //        System.out.println(metro.numberOfRunsBetweenTwoStationsOneLineReverseSearch(redLine, station1, station2));
