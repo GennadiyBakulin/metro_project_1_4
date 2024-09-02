@@ -1,17 +1,19 @@
-package org.javaacademy.metro.metro;
+package org.javaacademy.metro.metro.station;
 
-import org.javaacademy.metro.TicketOffice;
-import org.javaacademy.metro.exception.NoWayOutOfStationException;
-import org.javaacademy.metro.exception.StationWasNotFoundException;
+import org.javaacademy.metro.exception.stationexception.NoWayOutOfStationException;
+import org.javaacademy.metro.exception.stationexception.StationWasNotFoundException;
+import org.javaacademy.metro.metro.Metro;
+import org.javaacademy.metro.metro.line.Line;
+import org.javaacademy.metro.ticketoffice.TicketOffice;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
 
 public class Station {
-    private static final int SINGLE_PAYMENT = 20;
-    private static final int COST_TICKET = 5;
-    private static final int COST_TRAVEL_TICKET = 3000;
-    private static final String PREFIX_NUMBER_TRAVEL_TICKET = "a";
+    private static final BigDecimal SINGLE_PAYMENT = BigDecimal.valueOf(20);
+    private static final BigDecimal COST_TICKET = BigDecimal.valueOf(5);
+    private static final BigDecimal COST_TRAVEL_TICKET = BigDecimal.valueOf(3000);
     private final String name;
     private final Metro metro;
     private final Line line;
@@ -28,16 +30,16 @@ public class Station {
         this.metro = line.getMetro();
     }
 
-    public void ticketSales(LocalDate date, String start, String end)
+    public void salesTicket(LocalDate date, String start, String end)
             throws StationWasNotFoundException, NoWayOutOfStationException {
-        long count = metro.numberOfRunsBetweenTwoStations(start, end);
-        long ticketPrice = count * COST_TICKET + SINGLE_PAYMENT;
+        int count = metro.numberOfRunsBetweenTwoStations(start, end);
+        BigDecimal ticketPrice = COST_TICKET.multiply(BigDecimal.valueOf(count)).add(SINGLE_PAYMENT);
         ticketOffice.addRecordOfTicketSale(date, ticketPrice);
     }
 
-    public void travelTicketSales(String name, LocalDate date) {
-        String numberTravelTicket = String.format("%s%04d", PREFIX_NUMBER_TRAVEL_TICKET, metro.getTravelTickets().size());
-        extensionsTravelTicket(numberTravelTicket, date);
+    public void salesTravelTicket(LocalDate date) {
+        metro.addTravelTicket(metro.generateNumberTravelTicket(), date.plusMonths(1));
+        ticketOffice.addRecordOfTicketSale(date, COST_TRAVEL_TICKET);
     }
 
     public void extensionsTravelTicket(String number, LocalDate date) {
@@ -69,12 +71,12 @@ public class Station {
         this.next = next;
     }
 
-    public Duration getTimeTransferToNextStation() {
-        return timeTransferToNextStation;
-    }
-
     public void setTimeTransferToNextStation(Duration timeTransferToNextStation) {
         this.timeTransferToNextStation = timeTransferToNextStation;
+    }
+
+    public Duration getTimeTransferToNextStation() {
+        return timeTransferToNextStation;
     }
 
     public Line getLine() {

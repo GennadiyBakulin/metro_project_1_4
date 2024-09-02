@@ -1,6 +1,8 @@
-package org.javaacademy.metro.metro;
+package org.javaacademy.metro.metro.line;
 
-import org.javaacademy.metro.exception.StationNotAddedException;
+import org.javaacademy.metro.exception.stationexception.StationNotAddedException;
+import org.javaacademy.metro.metro.Metro;
+import org.javaacademy.metro.metro.station.Station;
 
 import java.time.Duration;
 import java.util.LinkedList;
@@ -43,14 +45,6 @@ public class Line {
 
     public LinkedList<Station> getStations() {
         return stations;
-    }
-
-    public Station getFirstStations() {
-        return stations.peekFirst();
-    }
-
-    public Station getLastStation() {
-        return stations.peekLast();
     }
 
     public Metro getMetro() {

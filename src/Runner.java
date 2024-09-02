@@ -1,11 +1,11 @@
-import org.javaacademy.metro.exception.LineNotCreatedException;
-import org.javaacademy.metro.exception.NoWayOutOfStationException;
-import org.javaacademy.metro.exception.StationNotAddedException;
-import org.javaacademy.metro.exception.StationWasNotFoundException;
-import org.javaacademy.metro.metro.Line;
-import org.javaacademy.metro.metro.LineColor;
+import org.javaacademy.metro.exception.lineexception.LineNotCreatedException;
+import org.javaacademy.metro.exception.stationexception.NoWayOutOfStationException;
+import org.javaacademy.metro.exception.stationexception.StationNotAddedException;
+import org.javaacademy.metro.exception.stationexception.StationWasNotFoundException;
+import org.javaacademy.metro.metro.line.Line;
+import org.javaacademy.metro.metro.line.LineColor;
 import org.javaacademy.metro.metro.Metro;
-import org.javaacademy.metro.metro.Station;
+import org.javaacademy.metro.metro.station.Station;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -34,20 +34,14 @@ public class Runner {
         System.out.println(metro);
 
         Station station2 = metro.getStationByName("Пацанская");
+        station2.salesTicket(LocalDate.now(), "Пацанская", "Дворец Культуры");
+        station2.salesTicket(LocalDate.now(), "Пацанская", "Нижнекамская");
+        station2.salesTicket(LocalDate.of(2019, 3, 10), "Пацанская", "Нижнекамская");
         Station station3 = metro.getStationByName("Нижнекамская");
-
-        System.out.println(metro.numberOfRunsBetweenTwoStationsOneLineDirectSearch(station2, station3));
-        System.out.println(metro.numberOfRunsBetweenTwoStationsOneLineReverseSearch(station3, station2));
-
-        station2.ticketSales(LocalDate.now(), "Пацанская", "Дворец Культуры");
-        station2.ticketSales(LocalDate.now(), "Пацанская", "Нижнекамская");
-        station2.ticketSales(LocalDate.of(2019, 3, 10), "Пацанская", "Нижнекамская");
-        station3.ticketSales(LocalDate.of(2019, 3, 10), "Нижнекамская", "Пацанская");
-        station3.ticketSales(LocalDate.of(2020, 5, 17), "Соборная", "Спортивная");
-//        System.out.println(station2.getTicketOffice().getRecordIncome());
+        station3.salesTicket(LocalDate.of(2019, 3, 10), "Нижнекамская", "Пацанская");
+        station3.salesTicket(LocalDate.of(2020, 5, 17), "Соборная", "Спортивная");
 
         metro.printIncomeAllTicketsOffice();
-
-
+        System.out.println(metro);
     }
 }

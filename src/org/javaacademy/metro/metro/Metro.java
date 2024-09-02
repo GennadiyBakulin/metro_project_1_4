@@ -1,20 +1,32 @@
 package org.javaacademy.metro.metro;
 
-import org.javaacademy.metro.exception.LineNotCreatedException;
-import org.javaacademy.metro.exception.NoWayOutOfStationException;
-import org.javaacademy.metro.exception.StationNotAddedException;
-import org.javaacademy.metro.exception.StationWasNotFoundException;
+import org.javaacademy.metro.exception.lineexception.LineNotCreatedException;
+import org.javaacademy.metro.exception.stationexception.NoWayOutOfStationException;
+import org.javaacademy.metro.exception.stationexception.StationNotAddedException;
+import org.javaacademy.metro.exception.stationexception.StationWasNotFoundException;
+import org.javaacademy.metro.metro.line.Line;
+import org.javaacademy.metro.metro.line.LineColor;
+import org.javaacademy.metro.metro.station.Station;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 public class Metro {
+    private static final String PREFIX_NUMBER_TRAVEL_TICKET = "a";
+    private final SortedMap<String, LocalDate> travelTickets = new TreeMap<>();
+    private final Set<Line> lines = new HashSet<>(2);
 
     private final String city;
-    private final Set<Line> lines = new HashSet<>(2);
-    private final SortedMap<String, LocalDate> travelTickets = new TreeMap<>();
 
     public Metro(String city) {
         this.city = city;
@@ -47,7 +59,7 @@ public class Metro {
         Line line = getLineWithThisColor(lineColor);
         if (line != null && !line.isEmpty() && nameStationIsUnique(name)
                 && timeTransferFromPreviousStation.getSeconds() > 0
-                && line.getStations().peekLast().getNext() == null) {
+                && Objects.requireNonNull(line.getStations().peekLast()).getNext() == null) {
             line.addStation(name, changeLines, timeTransferFromPreviousStation);
         } else {
             throw new StationNotAddedException("Не удалось добавить конечную станцию в линию метро");
@@ -77,24 +89,32 @@ public class Metro {
         }
     }
 
-    public long numberOfRunsBetweenTwoStationsOneLineDirectSearch(Station start, Station end) {
-        long count = start.getLine().getStations().stream()
-                .takeWhile(station -> !station.equals(end))
-                .dropWhile(station -> !station.equals(start))
-                .count();
-        return count != 0 ? count : -1;
+    public int numberOfRunsBetweenTwoStationsOneLineDirectSearch(Station start, Station end) {
+        int count = 0;
+        while (!start.equals(end)) {
+            if (start.getNext() == null) {
+                return -1;
+            }
+            start = start.getNext();
+            count++;
+        }
+        return count;
     }
 
-    public long numberOfRunsBetweenTwoStationsOneLineReverseSearch(Station start, Station end) {
-        long count = start.getLine().getStations().stream()
-                .takeWhile(station -> !station.equals(start))
-                .dropWhile(station -> !station.equals(end))
-                .count();
-        return count != 0 ? count : -1;
+    public int numberOfRunsBetweenTwoStationsOneLineReverseSearch(Station start, Station end) {
+        int count = 0;
+        while (!start.equals(end)) {
+            if (start.getPrevious() == null) {
+                return -1;
+            }
+            start = start.getPrevious();
+            count++;
+        }
+        return count;
     }
 
-    public long numberOfRunsBetweenTwoStationsOneLine(Station start, Station end) throws NoWayOutOfStationException {
-        long count;
+    public int numberOfRunsBetweenTwoStationsOneLine(Station start, Station end) throws NoWayOutOfStationException {
+        int count;
         if ((count = numberOfRunsBetweenTwoStationsOneLineDirectSearch(start, end)) != -1) {
             return count;
         }
@@ -105,7 +125,7 @@ public class Metro {
                 String.format("Нет пути из станции %s в %s", start.getName(), end.getName()));
     }
 
-    public long numberOfRunsBetweenTwoStations(String start, String end)
+    public int numberOfRunsBetweenTwoStations(String start, String end)
             throws NoWayOutOfStationException, StationWasNotFoundException {
 
         if (start.equals(end)) {
@@ -123,7 +143,7 @@ public class Metro {
         }
 
         Station startTransferStation = findTransferStations(startStation.getLine(), endStation.getLine());
-        long count = numberOfRunsBetweenTwoStationsOneLine(startStation, startTransferStation);
+        int count = numberOfRunsBetweenTwoStationsOneLine(startStation, startTransferStation);
         Station endTransferStation = findTransferStations(endStation.getLine(), startStation.getLine());
         count += numberOfRunsBetweenTwoStationsOneLine(endStation, endTransferStation);
 
@@ -143,6 +163,11 @@ public class Metro {
                 .orElse(null);
     }
 
+    public String generateNumberTravelTicket() {
+        return String.format("%s%04d",
+                PREFIX_NUMBER_TRAVEL_TICKET, travelTickets.size());
+    }
+
     public void addTravelTicket(String number, LocalDate date) {
         travelTickets.put(number, date);
     }
@@ -151,15 +176,18 @@ public class Metro {
         return date.isEqual(travelTickets.get(number)) || date.isBefore(travelTickets.get(number));
     }
 
-    public void printIncomeAllTicketsOffice() {
-        Map<LocalDate, Long> newMap = lines.stream()
+    public Map<LocalDate, BigDecimal> getIncomeAllTicketsOffice() {
+        return lines.stream()
                 .map(Line::getStations)
                 .flatMap(Collection::stream)
                 .map(station -> station.getTicketOffice().getRecordIncome().entrySet())
                 .flatMap(Collection::stream)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Long::sum));
-        SortedMap<LocalDate, Long> sortedMap = new TreeMap<>(newMap);
-        sortedMap.forEach((key, value) -> System.out.println(key + " - " + value));
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, BigDecimal::add));
+    }
+
+    public void printIncomeAllTicketsOffice() {
+        TreeMap<LocalDate, BigDecimal> sorted = new TreeMap<>(getIncomeAllTicketsOffice());
+        sorted.forEach((key, value) -> System.out.println(key + " - " + value));
     }
 
     @Override
