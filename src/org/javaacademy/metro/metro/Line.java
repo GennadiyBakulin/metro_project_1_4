@@ -1,8 +1,7 @@
-package org.javaacademy.metro.metro.line;
+package org.javaacademy.metro.metro;
 
 import org.javaacademy.metro.exception.stationexception.StationNotAddedException;
-import org.javaacademy.metro.metro.Metro;
-import org.javaacademy.metro.metro.station.Station;
+import org.javaacademy.metro.metro.lineattribute.LineColor;
 
 import java.time.Duration;
 import java.util.LinkedList;
@@ -12,27 +11,26 @@ public class Line {
     private final Metro metro;
     private final LinkedList<Station> stations = new LinkedList<>();
 
-    public Line(LineColor color, Metro metro) {
+    private Line(LineColor color, Metro metro) {
         this.color = color;
         this.metro = metro;
     }
 
-    public void addStation(String nameStation, Line changeLines) throws StationNotAddedException {
-        if (!stations.offerFirst(new Station(nameStation, changeLines, this))) {
-            throw new StationNotAddedException("Не удалось добавить первую станцию в линию метро");
-        }
+    public static Line createLine(LineColor lineColor, Metro metro) {
+        return new Line(lineColor, metro);
     }
 
-    public void addStation(String nameStation, Line changeLines, Duration time) throws StationNotAddedException {
-        Station newStation = new Station(nameStation, changeLines, this);
-        Station lastStation = stations.peekLast();
+    void addFirstStation(String nameStation, Line changeLines) {
+        stations.addFirst(Station.createStation(nameStation, changeLines, this));
+    }
 
-        if (!stations.offerLast(newStation)) {
-            throw new StationNotAddedException("Не удалось добавить конечную станцию в линию метро");
-        }
+    void addLastStation(String nameStation, Line changeLines, Duration time) throws StationNotAddedException {
+        Station lastStation = stations.peekLast();
+        Station newStation = Station.createStation(nameStation, changeLines, this);
+        newStation.setPrevious(lastStation);
         lastStation.setNext(newStation);
         lastStation.setTimeTransferToNextStation(time);
-        newStation.setPrevious(lastStation);
+        stations.addLast(newStation);
     }
 
     public boolean isEmpty() {

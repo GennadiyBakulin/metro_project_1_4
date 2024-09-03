@@ -1,9 +1,7 @@
-package org.javaacademy.metro.metro.station;
+package org.javaacademy.metro.metro;
 
 import org.javaacademy.metro.exception.stationexception.NoWayOutOfStationException;
 import org.javaacademy.metro.exception.stationexception.StationWasNotFoundException;
-import org.javaacademy.metro.metro.Metro;
-import org.javaacademy.metro.metro.line.Line;
 import org.javaacademy.metro.ticketoffice.TicketOffice;
 
 import java.math.BigDecimal;
@@ -23,11 +21,15 @@ public class Station {
     private Duration timeTransferToNextStation;
     private final TicketOffice ticketOffice = new TicketOffice();
 
-    public Station(String name, Line changeLines, Line line) {
+    private Station(String name, Line changeLines, Line line) {
         this.name = name;
         this.changeLines = changeLines;
         this.line = line;
         this.metro = line.getMetro();
+    }
+
+    static Station createStation(String name, Line changeLines, Line line) {
+        return new Station(name, changeLines, line);
     }
 
     public void salesTicket(LocalDate date, String start, String end)
