@@ -1,9 +1,7 @@
 package org.javaacademy.metro.metro;
 
-import org.javaacademy.metro.exception.stationexception.StationNotAddedException;
 import org.javaacademy.metro.metro.lineattribute.LineColor;
 
-import java.time.Duration;
 import java.util.LinkedList;
 
 public class Line {
@@ -20,21 +18,23 @@ public class Line {
         return new Line(lineColor, metro);
     }
 
-    void addFirstStation(String nameStation, Line changeLines) {
-        stations.addFirst(Station.createStation(nameStation, changeLines, this));
+    void addFirstStation(Station station) {
+        stations.addFirst(station);
     }
 
-    void addLastStation(String nameStation, Line changeLines, Duration time) throws StationNotAddedException {
-        Station lastStation = stations.peekLast();
-        Station newStation = Station.createStation(nameStation, changeLines, this);
-        newStation.setPrevious(lastStation);
-        lastStation.setNext(newStation);
-        lastStation.setTimeTransferToNextStation(time);
-        stations.addLast(newStation);
+    void addLastStation(Station station) {
+        stations.addLast(station);
     }
 
     public boolean isEmpty() {
         return stations.isEmpty();
+    }
+
+    public Station getStationByName(String name) {
+        return stations.stream()
+                .filter(station -> station.getName().equals(name))
+                .findFirst()
+                .orElse(null);
     }
 
     public LineColor getColor() {

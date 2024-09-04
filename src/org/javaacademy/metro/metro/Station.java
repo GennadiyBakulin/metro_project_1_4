@@ -77,10 +77,6 @@ public class Station {
         this.timeTransferToNextStation = timeTransferToNextStation;
     }
 
-    public Duration getTimeTransferToNextStation() {
-        return timeTransferToNextStation;
-    }
-
     public Line getLine() {
         return line;
     }
