@@ -14,7 +14,7 @@ public class Line {
         this.metro = metro;
     }
 
-    public static Line createLine(LineColor lineColor, Metro metro) {
+    static Line createLine(LineColor lineColor, Metro metro) {
         return new Line(lineColor, metro);
     }
 

@@ -6,6 +6,10 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 public class TicketOffice {
+    public static final BigDecimal SINGLE_PAYMENT = BigDecimal.valueOf(20);
+    public static final BigDecimal COST_TICKET = BigDecimal.valueOf(5);
+    public static final BigDecimal COST_TRAVEL_TICKET = BigDecimal.valueOf(3000);
+
     private final TreeMap<LocalDate, BigDecimal> recordIncome = new TreeMap<>();
 
     public SortedMap<LocalDate, BigDecimal> getRecordIncome() {

@@ -1,6 +1,6 @@
 package org.javaacademy.metro.metro;
 
-import org.javaacademy.metro.exception.stationexception.NoWayOutOfStationException;
+import org.javaacademy.metro.exception.NoWayOutOfStationException;
 import org.javaacademy.metro.exception.stationexception.StationWasNotFoundException;
 import org.javaacademy.metro.ticketoffice.TicketOffice;
 
@@ -9,9 +9,6 @@ import java.time.Duration;
 import java.time.LocalDate;
 
 public class Station {
-    private static final BigDecimal SINGLE_PAYMENT = BigDecimal.valueOf(20);
-    private static final BigDecimal COST_TICKET = BigDecimal.valueOf(5);
-    private static final BigDecimal COST_TRAVEL_TICKET = BigDecimal.valueOf(3000);
     private final String name;
     private final Metro metro;
     private final Line line;
@@ -35,18 +32,20 @@ public class Station {
     public void salesTicket(LocalDate date, String start, String end)
             throws StationWasNotFoundException, NoWayOutOfStationException {
         int count = metro.numberOfRunsBetweenTwoStations(start, end);
-        BigDecimal ticketPrice = COST_TICKET.multiply(BigDecimal.valueOf(count)).add(SINGLE_PAYMENT);
+        BigDecimal ticketPrice = TicketOffice.COST_TICKET
+                .multiply(BigDecimal.valueOf(count))
+                .add(TicketOffice.SINGLE_PAYMENT);
         ticketOffice.addRecordOfTicketSale(date, ticketPrice);
     }
 
     public void salesTravelTicket(LocalDate date) {
         metro.addTravelTicket(metro.generateNumberTravelTicket(), date.plusMonths(1));
-        ticketOffice.addRecordOfTicketSale(date, COST_TRAVEL_TICKET);
+        ticketOffice.addRecordOfTicketSale(date, TicketOffice.COST_TRAVEL_TICKET);
     }
 
     public void extensionsTravelTicket(String number, LocalDate date) {
         metro.addTravelTicket(number, date.plusMonths(1));
-        ticketOffice.addRecordOfTicketSale(date, COST_TRAVEL_TICKET);
+        ticketOffice.addRecordOfTicketSale(date, TicketOffice.COST_TRAVEL_TICKET);
     }
 
     public String getName() {
@@ -75,6 +74,10 @@ public class Station {
 
     public void setTimeTransferToNextStation(Duration timeTransferToNextStation) {
         this.timeTransferToNextStation = timeTransferToNextStation;
+    }
+
+    public Duration getTimeTransferToNextStation() {
+        return timeTransferToNextStation;
     }
 
     public Line getLine() {

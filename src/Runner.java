@@ -1,5 +1,5 @@
 import org.javaacademy.metro.exception.lineexception.LineNotCreatedException;
-import org.javaacademy.metro.exception.stationexception.NoWayOutOfStationException;
+import org.javaacademy.metro.exception.NoWayOutOfStationException;
 import org.javaacademy.metro.exception.stationexception.StationNotAddedException;
 import org.javaacademy.metro.exception.stationexception.StationWasNotFoundException;
 import org.javaacademy.metro.metro.Line;
