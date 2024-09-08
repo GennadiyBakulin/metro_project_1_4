@@ -24,11 +24,14 @@ public class Line {
     }
 
     public Station getLastStation() throws StationWasNotFoundException {
+        if (stations.isEmpty()) {
+            throw new StationWasNotFoundException(
+                    "Не получилось получить последнюю станцию на линии, так как линия не содержит станций!");
+        }
         return stations.stream()
                 .skip(stations.size() - 1)
                 .findFirst()
-                .orElseThrow(() -> new StationWasNotFoundException(
-                        "Не получилось получить последнюю станцию на линии, так как линия не содержит станций!"));
+                .get();
     }
 
     public LineColor getColor() {

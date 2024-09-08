@@ -1,5 +1,5 @@
 import org.javaacademy.metro.exception.NoWayOutOfStationException;
-import org.javaacademy.metro.exception.lineexception.LineNotCreatedException;
+import org.javaacademy.metro.exception.lineexception.LineNotFoundException;
 import org.javaacademy.metro.exception.stationexception.StationNotAddedException;
 import org.javaacademy.metro.exception.stationexception.StationWasNotFoundException;
 import org.javaacademy.metro.metro.Metro;
@@ -11,7 +11,7 @@ import java.time.LocalDate;
 
 public class Runner {
     public static void main(String[] args) throws StationNotAddedException,
-            LineNotCreatedException, StationWasNotFoundException, NoWayOutOfStationException {
+            StationWasNotFoundException, NoWayOutOfStationException, LineNotFoundException {
         Metro metro = new Metro("Пермь");
 
         metro.createLine(LineColor.RED);

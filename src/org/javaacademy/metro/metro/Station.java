@@ -7,7 +7,6 @@ import org.javaacademy.metro.ticketoffice.TicketOffice;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -17,7 +16,7 @@ public class Station {
     private final Line line;
     private Station previous;
     private Station next;
-    private Set<String> changeLines;
+    private final Set<String> changeLines = new HashSet<>();
     private Duration timeTransferToNextStation;
     private final TicketOffice ticketOffice = new TicketOffice();
 
@@ -25,10 +24,7 @@ public class Station {
         this.name = name;
         this.line = line;
         this.metro = line.getMetro();
-        if (Objects.nonNull(changeLines)) {
-            this.changeLines = new HashSet<>();
-            this.changeLines.addAll(Set.of(changeLines));
-        }
+        this.changeLines.addAll(Set.of(changeLines));
     }
 
     public void salesTicket(LocalDate date, String start, String end)
@@ -115,7 +111,7 @@ public class Station {
     public String toString() {
         return "Station{" +
                 "name='" + name + '\'' +
-                ", changeLines=" + (changeLines == null ? "null" : changeLines.stream()
+                ", changeLines=" + (changeLines.isEmpty() ? "null" : changeLines.stream()
                 .map(stationName -> {
                     try {
                         return metro.getStationByName(stationName).getLine().getColor().getName();
