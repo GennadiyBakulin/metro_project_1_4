@@ -1,47 +1,41 @@
 package org.javaacademy.metro.metro;
 
+import org.javaacademy.metro.exception.stationexception.StationWasNotFoundException;
 import org.javaacademy.metro.metro.lineattribute.LineColor;
 
-import java.util.LinkedList;
+import java.util.LinkedHashSet;
 
 public class Line {
     private final LineColor color;
     private final Metro metro;
-    private final LinkedList<Station> stations = new LinkedList<>();
+    private final LinkedHashSet<Station> stations = new LinkedHashSet<>();
 
-    private Line(LineColor color, Metro metro) {
+    public Line(LineColor color, Metro metro) {
         this.color = color;
         this.metro = metro;
     }
 
-    static Line createLine(LineColor lineColor, Metro metro) {
-        return new Line(lineColor, metro);
-    }
-
-    void addFirstStation(Station station) {
-        stations.addFirst(station);
-    }
-
-    void addLastStation(Station station) {
-        stations.addLast(station);
+    public void addStation(Station station) {
+        stations.add(station);
     }
 
     public boolean isEmpty() {
         return stations.isEmpty();
     }
 
-    public Station getStationByName(String name) {
+    public Station getLastStation() throws StationWasNotFoundException {
         return stations.stream()
-                .filter(station -> station.getName().equals(name))
+                .skip(stations.size() - 1)
                 .findFirst()
-                .orElse(null);
+                .orElseThrow(() -> new StationWasNotFoundException(
+                        "Не получилось получить последнюю станцию на линии, так как линия не содержит станций!"));
     }
 
     public LineColor getColor() {
         return color;
     }
 
-    public LinkedList<Station> getStations() {
+    public LinkedHashSet<Station> getStations() {
         return stations;
     }
 

@@ -1,8 +1,7 @@
-import org.javaacademy.metro.exception.lineexception.LineNotCreatedException;
 import org.javaacademy.metro.exception.NoWayOutOfStationException;
+import org.javaacademy.metro.exception.lineexception.LineNotCreatedException;
 import org.javaacademy.metro.exception.stationexception.StationNotAddedException;
 import org.javaacademy.metro.exception.stationexception.StationWasNotFoundException;
-import org.javaacademy.metro.metro.Line;
 import org.javaacademy.metro.metro.Metro;
 import org.javaacademy.metro.metro.Station;
 import org.javaacademy.metro.metro.lineattribute.LineColor;
@@ -15,21 +14,21 @@ public class Runner {
             LineNotCreatedException, StationWasNotFoundException, NoWayOutOfStationException {
         Metro metro = new Metro("Пермь");
 
-        Line redLine = metro.createLine(LineColor.RED);
-        Line blueLine = metro.createLine(LineColor.BLUE);
+        metro.createLine(LineColor.RED);
+        metro.createLine(LineColor.BLUE);
 
-        metro.createFirstStation(LineColor.RED, "Спортивная", null);
-        metro.createLastStation(LineColor.RED, "Медведковская", Duration.ofSeconds(141), null);
-        metro.createLastStation(LineColor.RED, "Молодежная", Duration.ofSeconds(118), null);
-        metro.createLastStation(LineColor.RED, "Пермь 1", Duration.ofSeconds(180), blueLine);
-        metro.createLastStation(LineColor.RED, "Пермь 2", Duration.ofSeconds(130), null);
-        metro.createLastStation(LineColor.RED, "Дворец Культуры", Duration.ofSeconds(266), null);
+        metro.createFirstStation(LineColor.RED, "Спортивная");
+        metro.createLastStation(LineColor.RED, "Медведковская", Duration.ofSeconds(141));
+        metro.createLastStation(LineColor.RED, "Молодежная", Duration.ofSeconds(118));
+        metro.createLastStation(LineColor.RED, "Пермь 1", Duration.ofSeconds(180), "Тяжмаш");
+        metro.createLastStation(LineColor.RED, "Пермь 2", Duration.ofSeconds(130));
+        metro.createLastStation(LineColor.RED, "Дворец Культуры", Duration.ofSeconds(266));
 
-        metro.createFirstStation(LineColor.BLUE, "Пацанская", null);
-        metro.createLastStation(LineColor.BLUE, "Улица Кирова", Duration.ofSeconds(90), null);
-        metro.createLastStation(LineColor.BLUE, "Тяжмаш", Duration.ofSeconds(107), redLine);
-        metro.createLastStation(LineColor.BLUE, "Нижнекамская", Duration.ofSeconds(199), null);
-        metro.createLastStation(LineColor.BLUE, "Соборная", Duration.ofSeconds(108), null);
+        metro.createFirstStation(LineColor.BLUE, "Пацанская");
+        metro.createLastStation(LineColor.BLUE, "Улица Кирова", Duration.ofSeconds(90));
+        metro.createLastStation(LineColor.BLUE, "Тяжмаш", Duration.ofSeconds(107), "Пермь 1");
+        metro.createLastStation(LineColor.BLUE, "Нижнекамская", Duration.ofSeconds(199));
+        metro.createLastStation(LineColor.BLUE, "Соборная", Duration.ofSeconds(108));
 
         System.out.println(metro);
 

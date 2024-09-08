@@ -4,9 +4,12 @@ import org.javaacademy.metro.exception.NoWayOutOfStationException;
 import org.javaacademy.metro.exception.stationexception.StationWasNotFoundException;
 import org.javaacademy.metro.ticketoffice.TicketOffice;
 
-import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Station {
     private final String name;
@@ -14,38 +17,34 @@ public class Station {
     private final Line line;
     private Station previous;
     private Station next;
-    private final Line changeLines;
+    private Set<String> changeLines;
     private Duration timeTransferToNextStation;
     private final TicketOffice ticketOffice = new TicketOffice();
 
-    private Station(String name, Line changeLines, Line line) {
+    public Station(String name, Line line, String... changeLines) {
         this.name = name;
-        this.changeLines = changeLines;
         this.line = line;
         this.metro = line.getMetro();
-    }
-
-    static Station createStation(String name, Line changeLines, Line line) {
-        return new Station(name, changeLines, line);
+        if (Objects.nonNull(changeLines)) {
+            this.changeLines = new HashSet<>();
+            this.changeLines.addAll(Set.of(changeLines));
+        }
     }
 
     public void salesTicket(LocalDate date, String start, String end)
             throws StationWasNotFoundException, NoWayOutOfStationException {
         int count = metro.numberOfRunsBetweenTwoStations(start, end);
-        BigDecimal ticketPrice = TicketOffice.COST_TICKET
-                .multiply(BigDecimal.valueOf(count))
-                .add(TicketOffice.SINGLE_PAYMENT);
-        ticketOffice.addRecordOfTicketSale(date, ticketPrice);
+        ticketOffice.addRecordOfTicketSale(date, count);
     }
 
     public void salesTravelTicket(LocalDate date) {
         metro.addTravelTicket(metro.generateNumberTravelTicket(), date.plusMonths(1));
-        ticketOffice.addRecordOfTicketSale(date, TicketOffice.COST_TRAVEL_TICKET);
+        ticketOffice.addRecordOfTravelTicket(date);
     }
 
     public void extensionsTravelTicket(String number, LocalDate date) {
         metro.addTravelTicket(number, date.plusMonths(1));
-        ticketOffice.addRecordOfTicketSale(date, TicketOffice.COST_TRAVEL_TICKET);
+        ticketOffice.addRecordOfTravelTicket(date);
     }
 
     public String getName() {
@@ -84,7 +83,7 @@ public class Station {
         return line;
     }
 
-    public Line getChangeLines() {
+    public Set<String> getChangeLines() {
         return changeLines;
     }
 
@@ -116,7 +115,15 @@ public class Station {
     public String toString() {
         return "Station{" +
                 "name='" + name + '\'' +
-                ", changeLines=" + (changeLines == null ? "null" : changeLines.getColor().getName()) +
+                ", changeLines=" + (changeLines == null ? "null" : changeLines.stream()
+                .map(stationName -> {
+                    try {
+                        return metro.getStationByName(stationName).getLine().getColor().getName();
+                    } catch (StationWasNotFoundException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .collect(Collectors.joining())) +
                 '}';
     }
 }

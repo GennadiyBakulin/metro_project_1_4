@@ -1,7 +1,7 @@
 package org.javaacademy.metro.metro;
 
-import org.javaacademy.metro.exception.lineexception.LineNotCreatedException;
 import org.javaacademy.metro.exception.NoWayOutOfStationException;
+import org.javaacademy.metro.exception.lineexception.LineNotCreatedException;
 import org.javaacademy.metro.exception.stationexception.StationNotAddedException;
 import org.javaacademy.metro.exception.stationexception.StationWasNotFoundException;
 import org.javaacademy.metro.metro.lineattribute.LineColor;
@@ -12,7 +12,6 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
@@ -22,7 +21,7 @@ import java.util.stream.Collectors;
 public class Metro {
     private static final String PREFIX_NUMBER_TRAVEL_TICKET = "a";
     private final SortedMap<String, LocalDate> travelTickets = new TreeMap<>();
-    private final Set<Line> lines = new HashSet<>(2);
+    private final Set<Line> lines = new HashSet<>();
 
     private final String city;
 
@@ -30,39 +29,38 @@ public class Metro {
         this.city = city;
     }
 
-    public Line createLine(LineColor lineColor) throws LineNotCreatedException {
+    public void createLine(LineColor lineColor) throws LineNotCreatedException {
         if (getLineWithThisColor(lineColor) != null) {
             throw new LineNotCreatedException("Не удалось создать линию, так как такая линия уже существует!");
         }
-        Line newline = Line.createLine(lineColor, this);
+        Line newline = new Line(lineColor, this);
         lines.add(newline);
-        return newline;
     }
 
-    public void createFirstStation(LineColor lineColor, String name, Line changeLines)
+    public void createFirstStation(LineColor lineColor, String name, String... changeLines)
             throws StationNotAddedException {
         Line line = getLineWithThisColor(lineColor);
         if (line == null || !line.isEmpty() || nameStationNotUnique(name)) {
             throw new StationNotAddedException("Не удалось добавить первую станцию в линию метро");
         }
-        line.addFirstStation(Station.createStation(name, changeLines, line));
+        line.addStation(new Station(name, line, changeLines));
     }
 
     public void createLastStation(LineColor lineColor, String name,
                                   Duration timeTransferFromPreviousStation,
-                                  Line changeLines) throws StationNotAddedException {
+                                  String... changeLines) throws StationNotAddedException, StationWasNotFoundException {
         Line line = getLineWithThisColor(lineColor);
         Station lastStationInLine;
         if (line == null || line.isEmpty() || nameStationNotUnique(name)
                 || timeTransferFromPreviousStation.getSeconds() <= 0
-                || Objects.requireNonNull(lastStationInLine = line.getStations().peekLast()).getNext() != null) {
+                || Objects.requireNonNull(lastStationInLine = line.getLastStation()).getNext() != null) {
             throw new StationNotAddedException("Не удалось добавить конечную станцию в линию метро");
         }
-        Station newStation = Station.createStation(name, changeLines, line);
+        Station newStation = new Station(name, line, changeLines);
         newStation.setPrevious(lastStationInLine);
         lastStationInLine.setNext(newStation);
         lastStationInLine.setTimeTransferToNextStation(timeTransferFromPreviousStation);
-        line.addLastStation(newStation);
+        line.addStation(newStation);
     }
 
     private Line getLineWithThisColor(LineColor lineColor) {
@@ -73,30 +71,41 @@ public class Metro {
         if (lines.isEmpty()) {
             return true;
         }
-        return getStationByName(nameStation) != null;
-    }
-
-    public Station getStationByName(String name) {
         return lines.stream()
-                .map(line -> line.getStationByName(name))
-                .filter(Objects::nonNull)
+                .map(Line::getStations)
+                .flatMap(Collection::stream)
+                .anyMatch(station -> station.getName().equals(nameStation));
+    }
+
+    public Station getStationByName(String name) throws StationWasNotFoundException {
+        return lines.stream()
+                .map(Line::getStations)
+                .flatMap(Collection::stream)
+                .filter(station -> station.getName().equals(name))
                 .findFirst()
-                .orElse(null);
+                .orElseThrow(() -> new StationWasNotFoundException(
+                        String.format("Не найдена станция %s на линиях метро %s\n", name, city)));
     }
 
-    public Station findTransferStations(Line start, Line end) throws StationWasNotFoundException {
-        try {
-            return getLineWithThisColor(start.getColor()).getStations()
-                    .stream()
-                    .filter(station -> station.getChangeLines() != null && station.getChangeLines().equals(end))
-                    .findFirst()
-                    .orElseThrow();
-        } catch (NoSuchElementException e) {
-            throw new StationWasNotFoundException("Станция на пересадку не найдена!");
-        }
+    private Station findTransferStations(Line startLine, Line endLine) throws StationWasNotFoundException {
+        return startLine.getStations()
+                .stream()
+                .filter(station -> station.getChangeLines() != null)
+                .filter(station -> station.getChangeLines().stream()
+                        .map(nameTransferStation -> {
+                            try {
+                                return this.getStationByName(nameTransferStation);
+                            } catch (StationWasNotFoundException e) {
+                                throw new RuntimeException(e);
+                            }
+                        })
+                        .anyMatch(transferStation ->
+                                transferStation != null && transferStation.getLine().equals(endLine)))
+                .findFirst()
+                .orElseThrow(() -> new StationWasNotFoundException("Станция на пересадку не найдена!"));
     }
 
-    public int numberOfRunsBetweenTwoStationsOneLineDirectSearch(Station start, Station end) {
+    private int numberOfRunsBetweenTwoStationsOneLineDirectSearch(Station start, Station end) {
         int count = 0;
         while (!start.equals(end)) {
             if (start.getNext() == null) {
@@ -108,7 +117,7 @@ public class Metro {
         return count;
     }
 
-    public int numberOfRunsBetweenTwoStationsOneLineReverseSearch(Station start, Station end) {
+    private int numberOfRunsBetweenTwoStationsOneLineReverseSearch(Station start, Station end) {
         int count = 0;
         while (!start.equals(end)) {
             if (start.getPrevious() == null) {
@@ -120,7 +129,7 @@ public class Metro {
         return count;
     }
 
-    public int numberOfRunsBetweenTwoStationsOneLine(Station start, Station end) throws NoWayOutOfStationException {
+    private int numberOfRunsBetweenTwoStationsOneLine(Station start, Station end) throws NoWayOutOfStationException {
         int count;
         if ((count = numberOfRunsBetweenTwoStationsOneLineDirectSearch(start, end)) != -1) {
             return count;
@@ -142,16 +151,20 @@ public class Metro {
         Station endStation = getStationByName(end);
 
         if (startStation == null || endStation == null) {
-            throw new StationWasNotFoundException("Одна из станций или обе станции не найдены на линиях метро Пермь!");
+            throw new StationWasNotFoundException(
+                    String.format("Одна из станций или обе станции не найдены на линиях метро %s!\n", city));
         }
 
-        if (startStation.getLine().equals(endStation.getLine())) {
+        Line lineStartStation = startStation.getLine();
+        Line lineEndStation = endStation.getLine();
+
+        if (lineStartStation.equals(lineEndStation)) {
             return numberOfRunsBetweenTwoStationsOneLine(startStation, endStation);
         }
 
-        Station startTransferStation = findTransferStations(startStation.getLine(), endStation.getLine());
+        Station startTransferStation = findTransferStations(lineStartStation, lineEndStation);
         int count = numberOfRunsBetweenTwoStationsOneLine(startStation, startTransferStation);
-        Station endTransferStation = findTransferStations(endStation.getLine(), startStation.getLine());
+        Station endTransferStation = findTransferStations(lineEndStation, lineStartStation);
         count += numberOfRunsBetweenTwoStationsOneLine(endStation, endTransferStation);
 
         return count;
@@ -162,8 +175,7 @@ public class Metro {
     }
 
     public String generateNumberTravelTicket() {
-        return String.format("%s%04d",
-                PREFIX_NUMBER_TRAVEL_TICKET, travelTickets.size());
+        return String.format("%s%04d", PREFIX_NUMBER_TRAVEL_TICKET, travelTickets.size());
     }
 
     public void addTravelTicket(String number, LocalDate date) {
