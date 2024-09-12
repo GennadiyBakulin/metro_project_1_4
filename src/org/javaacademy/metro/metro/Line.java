@@ -1,6 +1,6 @@
 package org.javaacademy.metro.metro;
 
-import org.javaacademy.metro.exception.stationexception.StationWasNotFoundException;
+import org.javaacademy.metro.exception.stationexception.StationNotFoundException;
 import org.javaacademy.metro.metro.lineattribute.LineColor;
 
 import java.util.LinkedHashSet;
@@ -23,9 +23,9 @@ public class Line {
         return stations.isEmpty();
     }
 
-    public Station getLastStation() throws StationWasNotFoundException {
+    public Station getLastStation() throws StationNotFoundException {
         if (stations.isEmpty()) {
-            throw new StationWasNotFoundException(
+            throw new StationNotFoundException(
                     "Не получилось получить последнюю станцию на линии, так как линия не содержит станций!");
         }
         return stations.stream()
@@ -69,8 +69,8 @@ public class Line {
     @Override
     public String toString() {
         return "Line{" +
-                "color=" + color.getName() +
-                ", stations=" + stations +
+                "color='" + color.getName() +
+                "', stations=" + stations +
                 '}';
     }
 }

@@ -1,7 +1,8 @@
 import org.javaacademy.metro.exception.NoWayOutOfStationException;
+import org.javaacademy.metro.exception.lineexception.LineCreatedException;
 import org.javaacademy.metro.exception.lineexception.LineNotFoundException;
-import org.javaacademy.metro.exception.stationexception.StationNotAddedException;
-import org.javaacademy.metro.exception.stationexception.StationWasNotFoundException;
+import org.javaacademy.metro.exception.stationexception.StationCreateException;
+import org.javaacademy.metro.exception.stationexception.StationNotFoundException;
 import org.javaacademy.metro.metro.Metro;
 import org.javaacademy.metro.metro.Station;
 import org.javaacademy.metro.metro.lineattribute.LineColor;
@@ -10,8 +11,8 @@ import java.time.Duration;
 import java.time.LocalDate;
 
 public class Runner {
-    public static void main(String[] args) throws StationNotAddedException,
-            StationWasNotFoundException, NoWayOutOfStationException, LineNotFoundException {
+    public static void main(String[] args) throws StationNotFoundException, NoWayOutOfStationException,
+            LineNotFoundException, LineCreatedException, StationCreateException {
         Metro metro = new Metro("Пермь");
 
         metro.createLine(LineColor.RED);
@@ -39,8 +40,8 @@ public class Runner {
         Station station3 = metro.getStationByName("Нижнекамская");
         station3.salesTicket(LocalDate.of(2019, 3, 10), "Нижнекамская", "Пацанская");
         station3.salesTicket(LocalDate.of(2020, 5, 17), "Соборная", "Спортивная");
-
         metro.printIncomeAllTicketsOffice();
-        System.out.println(metro);
+        station3.salesTravelTicket(LocalDate.of(2020, 5, 17));
+        System.out.println(metro.validityCheckTravelTicket("a0000", LocalDate.of(2020, 5, 17)));
     }
 }

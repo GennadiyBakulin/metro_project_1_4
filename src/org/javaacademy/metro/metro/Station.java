@@ -1,7 +1,7 @@
 package org.javaacademy.metro.metro;
 
 import org.javaacademy.metro.exception.NoWayOutOfStationException;
-import org.javaacademy.metro.exception.stationexception.StationWasNotFoundException;
+import org.javaacademy.metro.exception.stationexception.StationNotFoundException;
 import org.javaacademy.metro.ticketoffice.TicketOffice;
 
 import java.time.Duration;
@@ -27,9 +27,9 @@ public class Station {
         this.changeLines.addAll(Set.of(changeLines));
     }
 
-    public void salesTicket(LocalDate date, String start, String end)
-            throws StationWasNotFoundException, NoWayOutOfStationException {
-        int count = metro.numberOfRunsBetweenTwoStations(start, end);
+    public void salesTicket(LocalDate date, String startStation, String endStation)
+            throws StationNotFoundException, NoWayOutOfStationException {
+        int count = metro.numberOfRunsBetweenTwoStations(startStation, endStation);
         ticketOffice.addRecordOfTicketSale(date, count);
     }
 
@@ -111,15 +111,15 @@ public class Station {
     public String toString() {
         return "Station{" +
                 "name='" + name + '\'' +
-                ", changeLines=" + (changeLines.isEmpty() ? "null" : changeLines.stream()
+                ", changeLines='" + (changeLines.isEmpty() ? "null" : changeLines.stream()
                 .map(stationName -> {
                     try {
                         return metro.getStationByName(stationName).getLine().getColor().getName();
-                    } catch (StationWasNotFoundException e) {
+                    } catch (StationNotFoundException e) {
                         throw new RuntimeException(e);
                     }
                 })
-                .collect(Collectors.joining())) +
-                '}';
+                .collect(Collectors.joining(", "))) +
+                "'}";
     }
 }
