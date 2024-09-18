@@ -16,15 +16,14 @@ public class Station {
     private final Line line;
     private Station previous;
     private Station next;
-    private final Set<String> changeLines = new HashSet<>();
+    private final Set<Station> changeLines = new HashSet<>();
     private Duration timeTransferToNextStation;
     private final TicketOffice ticketOffice = new TicketOffice();
 
-    public Station(String name, Line line, String... changeLines) {
+    public Station(String name, Line line) {
         this.name = name;
         this.line = line;
         this.metro = line.getMetro();
-        this.changeLines.addAll(Set.of(changeLines));
     }
 
     public void salesTicket(LocalDate date, String startStation, String endStation)
@@ -79,12 +78,24 @@ public class Station {
         return line;
     }
 
-    public Set<String> getChangeLines() {
+    public void addChangeLine(Station station) {
+        if (changeLines.add(station)) {
+            station.addChangeLine(this);
+        }
+    }
+
+    public Set<Station> getChangeLines() {
         return changeLines;
     }
 
     public TicketOffice getTicketOffice() {
         return ticketOffice;
+    }
+
+    private String getColorChangeLines() {
+        return changeLines.isEmpty() ? "null" : changeLines.stream()
+                .map(station -> station.getLine().getColor().getName())
+                .collect(Collectors.joining(", "));
     }
 
     @Override
@@ -111,15 +122,7 @@ public class Station {
     public String toString() {
         return "Station{" +
                 "name='" + name + '\'' +
-                ", changeLines='" + (changeLines.isEmpty() ? "null" : changeLines.stream()
-                .map(stationName -> {
-                    try {
-                        return metro.getStationByName(stationName).getLine().getColor().getName();
-                    } catch (StationNotFoundException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .collect(Collectors.joining(", "))) +
+                ", changeLines='" + getColorChangeLines() +
                 "'}";
     }
 }
